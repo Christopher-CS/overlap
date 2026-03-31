@@ -1,0 +1,326 @@
+import { StyleSheet } from "react-native";
+
+export const scheduleCalendarStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  toolbar: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingLeft: 8,
+    paddingRight: 16,
+    paddingTop: 18,
+  },
+  rangeRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 2,
+  },
+  arrowButton: {
+    alignItems: "center",
+    height: 28,
+    justifyContent: "center",
+    width: 28,
+  },
+  rangeText: {
+    color: "#26344E",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  rangeYear: {
+    color: "#26344E",
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 2,
+  },
+  segmentedControl: {
+    backgroundColor: "#EEF2F7",
+    borderRadius: 14,
+    flexDirection: "row",
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+  },
+  segmentButton: {
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  segmentButtonActive: {
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#15213A",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+  },
+  segmentText: {
+    color: "#37455F",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  segmentTextActive: {
+    color: "#24324E",
+    fontWeight: "700",
+  },
+  actorRow: {
+    borderBottomColor: "#E9EEF7",
+    borderBottomWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+  },
+  actorChip: {
+    alignItems: "center",
+    borderRadius: 20,
+    borderWidth: 1.25,
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  actorChipIcon: {
+    alignItems: "center",
+    borderRadius: 8,
+    borderWidth: 1,
+    height: 16,
+    justifyContent: "center",
+    width: 16,
+  },
+  actorChipText: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  calendarShell: {
+    flex: 1,
+    paddingHorizontal: 10,
+    backgroundColor: "#FFFFFF",
+  },
+  weekScrollView: {
+    flex: 1,
+  },
+  weekScrollContent: {
+    paddingRight: 10,
+  },
+  dayHeaderCell: {
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    flex: 1,
+    justifyContent: "center",
+    paddingTop: 8,
+  },
+  dayHeaderCellCurrent: {
+    backgroundColor: "#EFF2F7",
+  },
+  dayHeaderLabel: {
+    color: "#7A879B",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  dayHeaderLabelCurrent: {
+    color: "#5D6B84",
+  },
+  dayHeaderValue: {
+    color: "#22304D",
+    fontSize: 16,
+    fontWeight: "800",
+    marginTop: 4,
+  },
+  dayHeaderValueCurrent: {
+    color: "#18233C",
+  },
+  eventCard: {
+    borderLeftWidth: 3,
+    borderRadius: 10,
+    flex: 1,
+    overflow: "hidden",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  eventTitle: {
+    color: "#22406D",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  eventSubtitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+  monthShell: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  monthContent: {
+    paddingBottom: 24,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+  },
+  monthWeekdayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+    paddingHorizontal: 4,
+  },
+  monthWeekdayLabel: {
+    color: "#7A879B",
+    flex: 1,
+    fontSize: 11,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  monthGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap"
+  },
+  monthCell: {
+    backgroundColor: "#F8FAFD",
+    borderColor: "#E8EDF6",
+    borderRadius: 8,
+    borderWidth: 1,
+    minHeight: 78,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    width: "14.2857%",
+  },
+  monthCellSelected: {
+    backgroundColor: "#EEF4FF",
+    borderColor: "#2D6BFF",
+  },
+  monthCellToday: {
+    borderColor: "#AFC6FF",
+  },
+  monthCellNumber: {
+    color: "#22304D",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  monthCellNumberMuted: {
+    color: "#A1ABBD",
+  },
+  monthCellNumberSelected: {
+    color: "#1D58E8",
+  },
+  monthEventDots: {
+    flexDirection: "row",
+    gap: 4,
+    marginTop: 8,
+  },
+  monthEventDot: {
+    borderRadius: 3,
+    height: 6,
+    width: 6,
+  },
+  monthMoreText: {
+    color: "#6A7890",
+    fontSize: 10,
+    fontWeight: "700",
+    marginTop: 6,
+  },
+  agendaSection: {
+    marginTop: 18,
+  },
+  agendaTitle: {
+    color: "#23314E",
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 12,
+  },
+  agendaCard: {
+    borderLeftWidth: 3,
+    borderRadius: 16,
+    marginBottom: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  agendaTime: {
+    color: "#50607B",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  agendaEventTitle: {
+    color: "#20304C",
+    fontSize: 15,
+    fontWeight: "800",
+    marginTop: 6,
+  },
+  agendaSubtitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+  emptyAgenda: {
+    backgroundColor: "#F6F8FC",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+  },
+  emptyAgendaTitle: {
+    color: "#22304D",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  eventModalBackdrop: {
+    alignItems: "center",
+    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  eventModalCard: {
+    borderLeftWidth: 4,
+    borderRadius: 22,
+    maxWidth: 420,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    width: "100%",
+  },
+  eventModalHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  eventModalTitleBlock: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  eventModalTitle: {
+    color: "#20304C",
+    fontSize: 22,
+    fontWeight: "800",
+  },
+  eventModalSubtitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    marginTop: 6,
+  },
+  eventModalClose: {
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 16,
+    height: 32,
+    justifyContent: "center",
+    width: 32,
+  },
+  eventModalMeta: {
+    marginTop: 18,
+  },
+  eventModalMetaLabel: {
+    color: "#6D7B92",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
+  eventModalMetaValue: {
+    color: "#22304D",
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 6,
+  },
+});

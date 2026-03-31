@@ -1,0 +1,75 @@
+{
+  "actors": [
+    {
+      "id": "alex",
+      "name": "Alex",
+      "entityType": "user",
+      "color": "#2D6BFF",
+      "chipColor": "#EAF1FF",
+      "eventColor": "#DCE8FF"
+    },
+    {
+      "id": "jordan",
+      "name": "Jordan",
+      "entityType": "user",
+      "color": "#FF7A1A",
+      "chipColor": "#FFF0E4",
+      "eventColor": "#FFE4CF"
+    },
+    {
+      "id": "sam",
+      "name": "Sam",
+      "entityType": "group",
+      "color": "#A34DFF",
+      "chipColor": "#F3E8FF",
+      "eventColor": "#EEDBFF"
+    }
+  ],
+  "eventTemplates": [
+    {
+      "id": "chemistry-101",
+      "ownerId": "alex",
+      "title": "Chemistry 101",
+      "subtitle": "Alex",
+      "date": "2026-03-31",
+      "startTime": "09:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": "group-meeting",
+      "ownerId": "sam",
+      "title": "Group Meeting",
+      "subtitle": "Sam",
+      "date": "2026-04-01",
+      "startTime": "09:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": "study-hall",
+      "ownerId": "jordan",
+      "title": "Study Hall",
+      "subtitle": "Jordan",
+      "date": "2026-04-01",
+      "startTime": "11:00",
+      "endTime": "12:30"
+    },
+    {
+      "id": "design-review",
+      "ownerId": "sam",
+      "title": "Design Review",
+      "subtitle": "Sam",
+      "date": "2026-04-02",
+      "startTime": "13:30",
+      "endTime": "14:30"
+    },
+    {
+      "id": "office-hours",
+      "ownerId": "alex",
+      "title": "Office Hours",
+      "subtitle": "Alex",
+      "date": "2026-04-02",
+      "startTime": "15:00",
+      "endTime": "16:00"
+    }
+  ]
+}
