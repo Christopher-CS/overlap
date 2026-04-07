@@ -22,7 +22,11 @@
       "entityType": "group",
       "color": "#A34DFF",
       "chipColor": "#F3E8FF",
-      "eventColor": "#EEDBFF"
+      "eventColor": "#EEDBFF",
+      "members": [
+        "alex",
+        "jordan"
+      ]
     }
   ],
   "eventTemplates": [
