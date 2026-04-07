@@ -1,4 +1,4 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   CalendarBody,
   CalendarContainer,
@@ -7,7 +7,7 @@ import {
   type EventItem,
   type PackedEvent,
 } from "@howljs/calendar-kit";
-import { useCallback, useRef, useState } from "react";
+import { type ComponentProps, useCallback, useMemo, useRef, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -17,6 +17,7 @@ import {
   View,
 } from "react-native";
 
+import { detectConflicts } from "../../data/conflict-utils";
 import { scheduleCalendarStyles as styles } from "./scheduleCalendarStyles";
 
 export type CalendarActor = {
@@ -46,9 +47,12 @@ type ScheduleCalendarProps = {
 type CalendarViewMode = "day" | "week" | "month";
 
 type MockCalendarEvent = EventItem & {
+  eventKey: string;
   subtitle: string;
   accentColor: string;
   surfaceColor: string;
+  entityType: CalendarActor["entityType"];
+  conflictCount: number;
 };
 
 type SelectedEventDetail = {
@@ -58,6 +62,8 @@ type SelectedEventDetail = {
   timeLabel: string;
   accentColor: string;
   surfaceColor: string;
+  entityType: CalendarActor["entityType"];
+  conflictCount: number;
 };
 
 const CURRENT_TIME_ZONE =
@@ -165,6 +171,24 @@ const formatDisplayTime = (time: string) => {
   return `${hours % 12 || 12}:${minutesText} ${suffix}`;
 };
 
+type EntityVisual = {
+  icon: ComponentProps<typeof MaterialCommunityIcons>["name"];
+  label: string;
+};
+
+const ENTITY_VISUALS: Record<CalendarActor["entityType"], EntityVisual> = {
+  user: {
+    icon: "account",
+    label: "Personal",
+  },
+  group: {
+    icon: "account-group",
+    label: "Group",
+  },
+};
+
+const getEntityVisual = (entityType: CalendarActor["entityType"]) => ENTITY_VISUALS[entityType];
+
 const buildEventDetail = ({
   title,
   subtitle,
@@ -173,6 +197,8 @@ const buildEventDetail = ({
   endTime,
   accentColor,
   surfaceColor,
+  entityType,
+  conflictCount,
 }: {
   title: string;
   subtitle: string;
@@ -181,6 +207,8 @@ const buildEventDetail = ({
   endTime: string;
   accentColor: string;
   surfaceColor: string;
+  entityType: CalendarActor["entityType"];
+  conflictCount: number;
 }): SelectedEventDetail => ({
   title,
   subtitle,
@@ -192,6 +220,8 @@ const buildEventDetail = ({
   timeLabel: `${formatDisplayTime(startTime)} - ${formatDisplayTime(endTime)}`,
   accentColor,
   surfaceColor,
+  entityType,
+  conflictCount,
 });
 
 const buildMonthGrid = (visibleDate: Date) => {
@@ -220,15 +250,25 @@ export default function ScheduleCalendar({
     (eventTemplate) => activeActors[eventTemplate.ownerId],
   );
 
+  const {
+    conflictEventKeys,
+    conflictCountByDate,
+    conflictCountByEventKey,
+  } = useMemo(() => detectConflicts(filteredEventTemplates), [filteredEventTemplates]);
+
   const calendarEvents: MockCalendarEvent[] = filteredEventTemplates.map((eventTemplate) => {
     const actor = actorMap[eventTemplate.ownerId];
     const eventDate = parseDateOnly(eventTemplate.date);
+    const eventKey = `${eventTemplate.id}-${eventTemplate.date}`;
     return {
-      id: `${eventTemplate.id}-${formatDateOnly(eventDate)}`,
+      id: eventKey,
+      eventKey,
       title: eventTemplate.title,
       subtitle: eventTemplate.subtitle,
       accentColor: actor.color,
       surfaceColor: actor.eventColor,
+      entityType: actor.entityType,
+      conflictCount: conflictCountByEventKey[eventKey] ?? 0,
       start: {
         dateTime: buildDateTimeString(eventDate, eventTemplate.startTime),
         timeZone: CURRENT_TIME_ZONE,
@@ -272,16 +312,52 @@ export default function ScheduleCalendar({
 
   const renderEvent = useCallback((event: PackedEvent) => {
     const calendarEvent = event as PackedEvent & MockCalendarEvent;
+    const isGroupEvent = calendarEvent.entityType === "group";
+    const isConflict = conflictEventKeys.has(calendarEvent.eventKey);
+    const showTypeLabel = viewMode !== "week";
+    const entityVisual = getEntityVisual(calendarEvent.entityType);
     return (
       <View
         style={[
           styles.eventCard,
+          isConflict && styles.eventCardConflict,
           {
             backgroundColor: calendarEvent.surfaceColor,
-            borderLeftColor: calendarEvent.accentColor,
           },
         ]}
       >
+        <View style={styles.eventAccentTrack}>
+          <View style={[styles.eventAccentPrimary, { backgroundColor: calendarEvent.accentColor }]} />
+          {isGroupEvent ? (
+            <View style={[styles.eventAccentSecondary, { backgroundColor: calendarEvent.accentColor }]} />
+          ) : null}
+        </View>
+        <View style={styles.eventTypeRow}>
+          <View
+            style={[
+              styles.eventTypeChip,
+              isGroupEvent ? styles.eventTypeChipGroup : styles.eventTypeChipPersonal,
+              { borderColor: calendarEvent.accentColor, backgroundColor: `${calendarEvent.accentColor}1A` },
+            ]}
+          >
+            <MaterialCommunityIcons
+              color={calendarEvent.accentColor}
+              name={entityVisual.icon}
+              size={11}
+            />
+            {showTypeLabel ? (
+              <Text style={[styles.eventTypeChipText, { color: calendarEvent.accentColor }]}>
+                {entityVisual.label}
+              </Text>
+            ) : null}
+          </View>
+          {isConflict ? (
+            <View style={styles.eventConflictBadge}>
+              <MaterialCommunityIcons color="#FFFFFF" name="alert" size={10} />
+              <Text style={styles.eventConflictBadgeText}>Conflict</Text>
+            </View>
+          ) : null}
+        </View>
         <Text numberOfLines={1} style={styles.eventTitle}>
           {calendarEvent.title}
         </Text>
@@ -290,7 +366,7 @@ export default function ScheduleCalendar({
         </Text>
       </View>
     );
-  }, []);
+  }, [conflictEventKeys, viewMode]);
 
   const rangeLabel = formatRangeLabel(visibleDate, viewMode);
   const monthGrid = buildMonthGrid(visibleDate);
@@ -299,6 +375,7 @@ export default function ScheduleCalendar({
 
   const openEventDetailFromTemplate = (eventTemplate: CalendarEventTemplate) => {
     const actor = actorMap[eventTemplate.ownerId];
+    const eventKey = `${eventTemplate.id}-${eventTemplate.date}`;
     setSelectedEvent(
       buildEventDetail({
         title: eventTemplate.title,
@@ -308,6 +385,8 @@ export default function ScheduleCalendar({
         endTime: eventTemplate.endTime,
         accentColor: actor.color,
         surfaceColor: actor.eventColor,
+        entityType: actor.entityType,
+        conflictCount: conflictCountByEventKey[eventKey] ?? 0,
       }),
     );
   };
@@ -437,6 +516,7 @@ export default function ScheduleCalendar({
             {monthGrid.map((date) => {
               const dateKey = formatDateOnly(date);
               const dayEvents = monthEventsByDate[dateKey] ?? [];
+              const dateConflictCount = conflictCountByDate[dateKey] ?? 0;
               const isCurrentMonth = date.getMonth() === visibleDate.getMonth();
               const isSelected = isSameDay(date, visibleDate);
               const isToday = isSameDay(date, new Date());
@@ -459,16 +539,28 @@ export default function ScheduleCalendar({
                   >
                     {date.getDate()}
                   </Text>
+                  {dateConflictCount > 0 ? (
+                    <View style={styles.monthConflictBadge}>
+                      <MaterialCommunityIcons color="#FFFFFF" name="alert" size={10} />
+                      <Text style={styles.monthConflictBadgeText}>{dateConflictCount}</Text>
+                    </View>
+                  ) : null}
                   <View style={styles.monthEventDots}>
-                    {dayEvents.slice(0, 3).map((eventTemplate) => (
-                      <View
-                        key={eventTemplate.id}
-                        style={[
-                          styles.monthEventDot,
-                          { backgroundColor: actorMap[eventTemplate.ownerId].color },
-                        ]}
-                      />
-                    ))}
+                    {dayEvents.slice(0, 3).map((eventTemplate) => {
+                      const actor = actorMap[eventTemplate.ownerId];
+                      return (
+                        <View
+                          key={eventTemplate.id}
+                          style={[
+                            styles.monthEventDot,
+                            actor.entityType === "group"
+                              ? styles.monthEventDotGroup
+                              : styles.monthEventDotPersonal,
+                            { backgroundColor: actor.color },
+                          ]}
+                        />
+                      );
+                    })}
                   </View>
                   {dayEvents.length > 3 ? (
                     <Text style={styles.monthMoreText}>+{dayEvents.length - 3}</Text>
@@ -485,15 +577,51 @@ export default function ScheduleCalendar({
             {selectedDayEvents.length > 0 ? (
               selectedDayEvents.map((eventTemplate) => {
                 const actor = actorMap[eventTemplate.ownerId];
+                const eventKey = `${eventTemplate.id}-${eventTemplate.date}`;
+                const conflictCount = conflictCountByEventKey[eventKey] ?? 0;
+                const entityVisual = getEntityVisual(actor.entityType);
                 return (
                   <Pressable
                     key={`${eventTemplate.id}-${eventTemplate.date}`}
                     onPress={() => openEventDetailFromTemplate(eventTemplate)}
+                    accessibilityLabel={`${entityVisual.label} event: ${eventTemplate.title}`}
                     style={[
                       styles.agendaCard,
-                      { backgroundColor: actor.eventColor, borderLeftColor: actor.color },
+                      { backgroundColor: actor.eventColor },
                     ]}
                   >
+                    <View style={styles.agendaAccentTrack}>
+                      <View style={[styles.agendaAccentPrimary, { backgroundColor: actor.color }]} />
+                      {actor.entityType === "group" ? (
+                        <View style={[styles.agendaAccentSecondary, { backgroundColor: actor.color }]} />
+                      ) : null}
+                    </View>
+                    <View style={styles.agendaTypeRow}>
+                      <View
+                        style={[
+                          styles.agendaTypeChip,
+                          actor.entityType === "group"
+                            ? styles.agendaTypeChipGroup
+                            : styles.agendaTypeChipPersonal,
+                          { borderColor: actor.color, backgroundColor: `${actor.color}1A` },
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          color={actor.color}
+                          name={entityVisual.icon}
+                          size={12}
+                        />
+                        <Text style={[styles.agendaTypeChipText, { color: actor.color }]}>
+                          {entityVisual.label}
+                        </Text>
+                      </View>
+                      {conflictCount > 0 ? (
+                        <View style={styles.agendaConflictChip}>
+                          <MaterialCommunityIcons color="#FFFFFF" name="alert" size={11} />
+                          <Text style={styles.agendaConflictChipText}>Conflict</Text>
+                        </View>
+                      ) : null}
+                    </View>
                     <Text style={styles.agendaTime}>
                       {formatDisplayTime(eventTemplate.startTime)} - {formatDisplayTime(eventTemplate.endTime)}
                     </Text>
@@ -540,6 +668,8 @@ export default function ScheduleCalendar({
                   endTime,
                   accentColor: typedEvent.accentColor,
                   surfaceColor: typedEvent.surfaceColor,
+                  entityType: typedEvent.entityType,
+                  conflictCount: typedEvent.conflictCount,
                 }),
               );
             }}
@@ -621,6 +751,35 @@ export default function ScheduleCalendar({
               <Text style={styles.eventModalMetaLabel}>Time</Text>
               <Text style={styles.eventModalMetaValue}>{selectedEvent?.timeLabel}</Text>
             </View>
+
+            <View style={styles.eventModalMeta}>
+              <Text style={styles.eventModalMetaLabel}>Type</Text>
+              {selectedEvent ? (
+                <View style={styles.eventModalTypeRow}>
+                  <MaterialCommunityIcons
+                    color={selectedEvent.accentColor}
+                    name={getEntityVisual(selectedEvent.entityType).icon}
+                    size={16}
+                  />
+                  <Text style={[styles.eventModalMetaValue, { marginTop: 0 }]}>
+                    {getEntityVisual(selectedEvent.entityType).label}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+
+            {selectedEvent && selectedEvent.conflictCount > 0 ? (
+              <View style={styles.eventModalMeta}>
+                <Text style={styles.eventModalMetaLabel}>Conflict</Text>
+                <View style={styles.eventModalConflictRow}>
+                  <MaterialCommunityIcons color="#FFFFFF" name="alert" size={12} />
+                  <Text style={styles.eventModalConflictText}>
+                    Conflicts with {selectedEvent.conflictCount} event
+                    {selectedEvent.conflictCount === 1 ? "" : "s"}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
           </Pressable>
         </Pressable>
       </Modal>
