@@ -35,3 +35,4 @@ google-services.json
 
 # Codex
 .codex/
+node_modules

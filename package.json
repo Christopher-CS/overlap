@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@types/node": "^25.5.2"
+  },
+  "dependencies": {
+    "expo": "^55.0.12"
+  }
+}
