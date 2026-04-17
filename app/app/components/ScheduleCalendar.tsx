@@ -252,6 +252,7 @@ export default function ScheduleCalendar({
 
   const {
     conflictEventKeys,
+    highOverlapEventKeys,
     conflictCountByDate,
     conflictCountByEventKey,
   } = useMemo(() => detectConflicts(filteredEventTemplates), [filteredEventTemplates]);
@@ -314,6 +315,7 @@ export default function ScheduleCalendar({
     const calendarEvent = event as PackedEvent & MockCalendarEvent;
     const isGroupEvent = calendarEvent.entityType === "group";
     const isConflict = conflictEventKeys.has(calendarEvent.eventKey);
+    const isHighOverlapConflict = viewMode === "week" && highOverlapEventKeys.has(calendarEvent.eventKey);
     const showTypeLabel = viewMode !== "week";
     const entityVisual = getEntityVisual(calendarEvent.entityType);
     return (
@@ -321,6 +323,7 @@ export default function ScheduleCalendar({
         style={[
           styles.eventCard,
           isConflict && styles.eventCardConflict,
+          isHighOverlapConflict && styles.eventCardConflictHighOverlap,
           {
             backgroundColor: calendarEvent.surfaceColor,
           },
@@ -352,9 +355,16 @@ export default function ScheduleCalendar({
             ) : null}
           </View>
           {isConflict ? (
-            <View style={styles.eventConflictBadge}>
+            <View
+              style={[
+                styles.eventConflictBadge,
+                isHighOverlapConflict && styles.eventConflictBadgeHighOverlap,
+              ]}
+            >
               <MaterialCommunityIcons color="#FFFFFF" name="alert" size={10} />
-              <Text style={styles.eventConflictBadgeText}>Conflict</Text>
+              {isHighOverlapConflict ? null : (
+                <Text style={styles.eventConflictBadgeText}>Conflict</Text>
+              )}
             </View>
           ) : null}
         </View>
@@ -366,7 +376,7 @@ export default function ScheduleCalendar({
         </Text>
       </View>
     );
-  }, [conflictEventKeys, viewMode]);
+  }, [conflictEventKeys, highOverlapEventKeys, viewMode]);
 
   const rangeLabel = formatRangeLabel(visibleDate, viewMode);
   const monthGrid = buildMonthGrid(visibleDate);
@@ -462,7 +472,12 @@ export default function ScheduleCalendar({
         </View>
       </View>
 
-      <View style={styles.actorRow}>
+      <ScrollView
+        contentContainerStyle={styles.actorRow}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.actorRowScroll}
+      >
         {actors.map((actor) => {
           const isActive = activeActors[actor.id];
           return (
@@ -500,7 +515,7 @@ export default function ScheduleCalendar({
             </Pressable>
           );
         })}
-      </View>
+      </ScrollView>
 
       {viewMode === "month" ? (
         <ScrollView contentContainerStyle={styles.monthContent} style={styles.monthShell}>

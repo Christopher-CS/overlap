@@ -1,0 +1,28 @@
+{
+  "profiles": [
+    {
+      "id": "me",
+      "displayName": "You",
+      "avatarUrl": null,
+      "accentColor": "#2D6BFF",
+      "createdAt": "2026-04-01T12:00:00.000Z",
+      "updatedAt": "2026-04-01T12:00:00.000Z"
+    },
+    {
+      "id": "user-avery",
+      "displayName": "Avery Park",
+      "avatarUrl": null,
+      "accentColor": "#DE7E19",
+      "createdAt": "2026-04-01T12:00:00.000Z",
+      "updatedAt": "2026-04-01T12:00:00.000Z"
+    },
+    {
+      "id": "user-jordan",
+      "displayName": "Jordan Lee",
+      "avatarUrl": null,
+      "accentColor": "#19A36B",
+      "createdAt": "2026-04-01T12:00:00.000Z",
+      "updatedAt": "2026-04-01T12:00:00.000Z"
+    }
+  ]
+}

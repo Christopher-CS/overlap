@@ -15,6 +15,7 @@ export const scheduleCalendarStyles = StyleSheet.create({
   rangeRow: {
     alignItems: "center",
     flexDirection: "row",
+    flexShrink: 1,
     gap: 2,
   },
   arrowButton: {
@@ -38,11 +39,15 @@ export const scheduleCalendarStyles = StyleSheet.create({
     backgroundColor: "#EEF2F7",
     borderRadius: 14,
     flexDirection: "row",
+    flexShrink: 0,
+    marginLeft: 8,
     paddingHorizontal: 4,
     paddingVertical: 4,
   },
   segmentButton: {
+    alignItems: "center",
     borderRadius: 10,
+    minWidth: 60,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
@@ -63,15 +68,21 @@ export const scheduleCalendarStyles = StyleSheet.create({
     fontWeight: "700",
   },
   actorRow: {
-    borderBottomColor: "#E9EEF7",
-    borderBottomWidth: 1,
+    alignItems: "center",
     flexDirection: "row",
     gap: 10,
     paddingHorizontal: 10,
-    paddingVertical: 14,
+    paddingVertical: 6,
+  },
+  actorRowScroll: {
+    borderBottomColor: "#E9EEF7",
+    borderBottomWidth: 1,
+    maxHeight: 64,
+    minHeight: 64,
   },
   actorChip: {
     alignItems: "center",
+    alignSelf: "center",
     borderRadius: 20,
     borderWidth: 1.25,
     flexDirection: "row",
@@ -192,6 +203,10 @@ export const scheduleCalendarStyles = StyleSheet.create({
   eventCardConflict: {
     borderColor: "#E0464D",
   },
+  eventCardConflictHighOverlap: {
+    borderColor: "#8A2BE2",
+    borderWidth: 1.6,
+  },
   eventConflictBadge: {
     alignItems: "center",
     backgroundColor: "#E0464D",
@@ -200,6 +215,9 @@ export const scheduleCalendarStyles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 7,
     paddingVertical: 2,
+  },
+  eventConflictBadgeHighOverlap: {
+    backgroundColor: "#8A2BE2",
   },
   eventConflictBadgeText: {
     color: "#FFFFFF",
