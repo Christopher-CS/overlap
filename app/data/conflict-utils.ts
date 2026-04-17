@@ -9,6 +9,7 @@ export type ConflictGroup = {
 
 export type ConflictSummary = {
   conflictEventKeys: Set<string>;
+  highOverlapEventKeys: Set<string>;
   conflictGroupsByDate: Record<string, ConflictGroup[]>;
   conflictCountByDate: Record<string, number>;
   conflictCountByEventKey: Record<string, number>;
@@ -44,6 +45,7 @@ export const detectConflicts = (
   );
 
   const conflictEventKeys = new Set<string>();
+  const highOverlapEventKeys = new Set<string>();
   const conflictGroupsByDate: Record<string, ConflictGroup[]> = {};
   const conflictCountByDate: Record<string, number> = {};
   const conflictCountByEventKey: Record<string, number> = {};
@@ -53,6 +55,11 @@ export const detectConflicts = (
       firstEvent.startTime.localeCompare(secondEvent.startTime),
     );
     const dateConflicts: ConflictGroup[] = [];
+    const eventsWithBounds = sortedEvents.map((eventTemplate) => ({
+      eventKey: toEventKey(eventTemplate),
+      startMinutes: toMinutes(eventTemplate.startTime),
+      endMinutes: toMinutes(eventTemplate.endTime),
+    }));
 
     let index = 0;
     while (index < sortedEvents.length) {
@@ -90,6 +97,45 @@ export const detectConflicts = (
       index = Math.max(nextIndex, index + 1);
     }
 
+    // Track events that are part of >=3 concurrent overlaps.
+    const boundaries: Array<{ minute: number; type: "start" | "end"; eventKey: string }> = [];
+    eventsWithBounds.forEach((eventWithBounds) => {
+      boundaries.push({
+        minute: eventWithBounds.startMinutes,
+        type: "start",
+        eventKey: eventWithBounds.eventKey,
+      });
+      boundaries.push({
+        minute: eventWithBounds.endMinutes,
+        type: "end",
+        eventKey: eventWithBounds.eventKey,
+      });
+    });
+    boundaries.sort((firstBoundary, secondBoundary) => {
+      if (firstBoundary.minute !== secondBoundary.minute) {
+        return firstBoundary.minute - secondBoundary.minute;
+      }
+      if (firstBoundary.type === secondBoundary.type) {
+        return 0;
+      }
+      return firstBoundary.type === "end" ? -1 : 1;
+    });
+
+    const activeEventKeys = new Set<string>();
+    boundaries.forEach((boundary) => {
+      if (boundary.type === "end") {
+        activeEventKeys.delete(boundary.eventKey);
+        return;
+      }
+
+      activeEventKeys.add(boundary.eventKey);
+      if (activeEventKeys.size >= 3) {
+        activeEventKeys.forEach((eventKey) => {
+          highOverlapEventKeys.add(eventKey);
+        });
+      }
+    });
+
     if (dateConflicts.length > 0) {
       conflictGroupsByDate[dateValue] = dateConflicts;
       conflictCountByDate[dateValue] = dateConflicts.length;
@@ -98,6 +144,7 @@ export const detectConflicts = (
 
   return {
     conflictEventKeys,
+    highOverlapEventKeys,
     conflictGroupsByDate,
     conflictCountByDate,
     conflictCountByEventKey,

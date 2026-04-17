@@ -4,13 +4,34 @@ import { Tabs } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { AuthProvider } from "../data/auth-context";
+import { AuthGuard } from "../data/auth-guard";
+import { ProfileProvider } from "../data/profile-context";
+
 export default function RootLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="dark" />
-      <Tabs
+      <AuthProvider>
+        <ProfileProvider>
+          <AuthGuard>
+            <RootTabs insets={insets} />
+          </AuthGuard>
+        </ProfileProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+type RootTabsProps = {
+  insets: { bottom: number };
+};
+
+function RootTabs({ insets }: RootTabsProps) {
+  return (
+    <Tabs
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: "#2D6BFF",
@@ -69,8 +90,8 @@ export default function RootLayout() {
         <Tabs.Screen name="components/AppTopBar" options={{ href: null }} />
         <Tabs.Screen name="components/ScheduleCalendar" options={{ href: null }} />
         <Tabs.Screen name="components/scheduleCalendarStyles" options={{ href: null }} />
+        <Tabs.Screen name="group-chat/[groupId]" options={{ href: null }} />
         <Tabs.Screen name="+not-found" options={{ href: null }} />
       </Tabs>
-    </GestureHandlerRootView>
   );
 }

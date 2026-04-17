@@ -18,11 +18,27 @@
     },
     {
       "id": "group1",
-      "name": "Group 1",
+      "name": "Product Launch Crew",
       "entityType": "group",
       "color": "#A34DFF",
       "chipColor": "#F3E8FF",
       "eventColor": "#EEDBFF"
+    },
+    {
+      "id": "group2",
+      "name": "Frontend Devs",
+      "entityType": "group",
+      "color": "#2B8EFF",
+      "chipColor": "#E6F1FF",
+      "eventColor": "#DCEBFF"
+    },
+    {
+      "id": "group3",
+      "name": "Design Critique",
+      "entityType": "group",
+      "color": "#DE7E19",
+      "chipColor": "#FFF1E5",
+      "eventColor": "#FFE9D5"
     }
   ],
   "eventTemplates": [
@@ -31,7 +47,7 @@
       "ownerId": "alex",
       "title": "Chemistry 101",
       "subtitle": "Alex",
-      "date": "2026-04-07",
+      "date": "2026-04-17",
       "startTime": "09:00",
       "endTime": "11:00"
     },
@@ -39,8 +55,8 @@
       "id": "group-meeting",
       "ownerId": "group1",
       "title": "Group Meeting",
-      "subtitle": "Group 1",
-      "date": "2026-04-08",
+      "subtitle": "Product Launch Crew",
+      "date": "2026-04-18",
       "startTime": "09:00",
       "endTime": "11:00"
     },
@@ -49,7 +65,7 @@
       "ownerId": "jordan",
       "title": "Study Hall",
       "subtitle": "Jordan",
-      "date": "2026-04-08",
+      "date": "2026-04-18",
       "startTime": "11:00",
       "endTime": "12:30"
     },
@@ -58,7 +74,7 @@
       "ownerId": "alex",
       "title": "Math Tutoring",
       "subtitle": "Alex",
-      "date": "2026-04-08",
+      "date": "2026-04-18",
       "startTime": "10:30",
       "endTime": "11:30"
     },
@@ -66,17 +82,26 @@
       "id": "design-review",
       "ownerId": "group1",
       "title": "Design Review",
-      "subtitle": "Group 1",
-      "date": "2026-04-09",
+      "subtitle": "Product Launch Crew",
+      "date": "2026-04-19",
       "startTime": "13:30",
       "endTime": "14:30"
+    },
+    {
+      "id": "critique-sync",
+      "ownerId": "group3",
+      "title": "Critique Sync",
+      "subtitle": "Design Critique",
+      "date": "2026-04-19",
+      "startTime": "13:30",
+      "endTime": "14:15"
     },
     {
       "id": "office-hours",
       "ownerId": "alex",
       "title": "Office Hours",
       "subtitle": "Alex",
-      "date": "2026-04-09",
+      "date": "2026-04-19",
       "startTime": "15:00",
       "endTime": "16:00"
     },
@@ -85,9 +110,126 @@
       "ownerId": "jordan",
       "title": "Research Sync",
       "subtitle": "Jordan",
-      "date": "2026-04-09",
+      "date": "2026-04-19",
       "startTime": "14:00",
       "endTime": "15:15"
+    },
+    {
+      "id": "frontend-standup",
+      "ownerId": "group2",
+      "title": "Frontend Standup",
+      "subtitle": "Frontend Devs",
+      "date": "2026-04-20",
+      "startTime": "09:30",
+      "endTime": "10:00"
+    },
+    {
+      "id": "prototype-review",
+      "ownerId": "group3",
+      "title": "Prototype Review",
+      "subtitle": "Design Critique",
+      "date": "2026-04-20",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": "api-planning",
+      "ownerId": "group2",
+      "title": "API Planning",
+      "subtitle": "Frontend Devs",
+      "date": "2026-04-21",
+      "startTime": "11:00",
+      "endTime": "12:00"
+    },
+    {
+      "id": "ui-handoff",
+      "ownerId": "group3",
+      "title": "UI Handoff",
+      "subtitle": "Design Critique",
+      "date": "2026-04-21",
+      "startTime": "11:30",
+      "endTime": "12:30"
+    },
+    {
+      "id": "db-lab",
+      "ownerId": "alex",
+      "title": "Database Lab",
+      "subtitle": "Alex",
+      "date": "2026-04-20",
+      "startTime": "16:00",
+      "endTime": "17:00"
+    },
+    {
+      "id": "library-sprint",
+      "ownerId": "jordan",
+      "title": "Library Sprint",
+      "subtitle": "Jordan",
+      "date": "2026-04-21",
+      "startTime": "10:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": "group-retro",
+      "ownerId": "group1",
+      "title": "Group Retro",
+      "subtitle": "Product Launch Crew",
+      "date": "2026-04-24",
+      "startTime": "14:30",
+      "endTime": "15:30"
+    },
+    {
+      "id": "sprint-demo",
+      "ownerId": "group2",
+      "title": "Sprint Demo",
+      "subtitle": "Frontend Devs",
+      "date": "2026-04-24",
+      "startTime": "15:00",
+      "endTime": "16:00"
+    },
+    {
+      "id": "ux-polish-session",
+      "ownerId": "group3",
+      "title": "UX Polish Session",
+      "subtitle": "Design Critique",
+      "date": "2026-04-26",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": "stakeholder-brief",
+      "ownerId": "group1",
+      "title": "Stakeholder Brief",
+      "subtitle": "Product Launch Crew",
+      "date": "2026-04-26",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": "frontend-integration",
+      "ownerId": "group2",
+      "title": "Frontend Integration",
+      "subtitle": "Frontend Devs",
+      "date": "2026-04-28",
+      "startTime": "10:00",
+      "endTime": "11:30"
+    },
+    {
+      "id": "design-qa-pass",
+      "ownerId": "group3",
+      "title": "Design QA Pass",
+      "subtitle": "Design Critique",
+      "date": "2026-04-28",
+      "startTime": "10:30",
+      "endTime": "11:00"
+    },
+    {
+      "id": "final-review",
+      "ownerId": "group1",
+      "title": "Final Review",
+      "subtitle": "Product Launch Crew",
+      "date": "2026-04-30",
+      "startTime": "16:00",
+      "endTime": "17:00"
     }
   ]
 }

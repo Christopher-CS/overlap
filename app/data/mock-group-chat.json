@@ -1,0 +1,44 @@
+{
+  "messages": [
+    {
+      "id": "m-group1-1",
+      "groupId": "group1",
+      "senderId": "alex",
+      "senderName": "Alex",
+      "text": "I uploaded the launch deck draft. Please review before tonight.",
+      "createdAt": "2026-04-24T14:05:00.000Z"
+    },
+    {
+      "id": "m-group1-2",
+      "groupId": "group1",
+      "senderId": "jordan",
+      "senderName": "Jordan",
+      "text": "Looks good. I will tighten the timeline slide.",
+      "createdAt": "2026-04-24T14:12:00.000Z"
+    },
+    {
+      "id": "m-group2-1",
+      "groupId": "group2",
+      "senderId": "alex",
+      "senderName": "Alex",
+      "text": "Frontend integration starts at 10. Blockers?",
+      "createdAt": "2026-04-28T09:40:00.000Z"
+    },
+    {
+      "id": "m-group2-2",
+      "groupId": "group2",
+      "senderId": "jordan",
+      "senderName": "Jordan",
+      "text": "No blockers here. API mock is ready.",
+      "createdAt": "2026-04-28T09:48:00.000Z"
+    },
+    {
+      "id": "m-group3-1",
+      "groupId": "group3",
+      "senderId": "jordan",
+      "senderName": "Jordan",
+      "text": "Can we lock the spacing system after UX polish?",
+      "createdAt": "2026-04-26T12:15:00.000Z"
+    }
+  ]
+}

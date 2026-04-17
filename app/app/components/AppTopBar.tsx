@@ -1,6 +1,8 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { getDisplayInitials, useCurrentProfile } from "../../data/profile-context";
+
 export type AppTopBarProps = {
   /** When set, shown as the left title (tab / inner screens). When omitted, shows the Overlap brand. */
   title?: string;
@@ -10,6 +12,9 @@ export type AppTopBarProps = {
 
 export function AppTopBar({ title, showActions = true }: AppTopBarProps) {
   const isBrand = !title;
+  const { profile } = useCurrentProfile();
+  const initials = getDisplayInitials(profile?.displayName);
+  const avatarTint = profile?.accentColor ?? "#2D6BFF";
 
   return (
     <View style={styles.topBar}>
@@ -21,8 +26,16 @@ export function AppTopBar({ title, showActions = true }: AppTopBarProps) {
           <TouchableOpacity style={styles.iconButton} accessibilityRole="button">
             <Feather color="#22304D" name="user-plus" size={20} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.avatarButton} accessibilityRole="button">
-            <Ionicons color="#A9AEB8" name="person" size={22} />
+          <TouchableOpacity
+            accessibilityLabel={profile?.displayName ?? "Profile"}
+            accessibilityRole="button"
+            style={[styles.avatarButton, initials ? { backgroundColor: avatarTint } : null]}
+          >
+            {initials ? (
+              <Text style={styles.avatarInitials}>{initials}</Text>
+            ) : (
+              <Ionicons color="#A9AEB8" name="person" size={22} />
+            )}
           </TouchableOpacity>
         </View>
       ) : (
@@ -77,5 +90,11 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: "center",
     width: 36,
+  },
+  avatarInitials: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0.4,
   },
 });
