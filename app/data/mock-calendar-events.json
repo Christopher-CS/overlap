@@ -22,6 +22,7 @@
       "entityType": "group",
       "color": "#A34DFF",
       "chipColor": "#F3E8FF",
+<<<<<<< HEAD
       "eventColor": "#EEDBFF"
     },
     {
@@ -39,6 +40,13 @@
       "color": "#DE7E19",
       "chipColor": "#FFF1E5",
       "eventColor": "#FFE9D5"
+=======
+      "eventColor": "#EEDBFF",
+      "members": [
+        "alex",
+        "jordan"
+      ]
+>>>>>>> dbf766652db224fc180cca1c9a1dc53f0112083c
     }
   ],
   "eventTemplates": [
