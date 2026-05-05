@@ -1,3 +1,5 @@
+import type { UserId } from "./ids";
+
 /**
  * Represents the authenticated user in the most minimal form the app
  * needs at the repository / routing layer. Display-oriented fields
@@ -5,7 +7,7 @@
  * profiles can be updated independently from session state.
  */
 export type SessionUser = {
-  id: string;
+  id: UserId;
   email: string | null;
 };
 

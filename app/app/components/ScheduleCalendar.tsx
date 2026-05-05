@@ -17,21 +17,16 @@ import {
   View,
 } from "react-native";
 
+import type { ActorRecord } from "../../data/actors-types";
 import { detectConflicts } from "../../data/conflict-utils";
+import type { ActorId, EventId } from "../../data/ids";
 import { scheduleCalendarStyles as styles } from "./scheduleCalendarStyles";
 
-export type CalendarActor = {
-  id: string;
-  name: string;
-  entityType: "user" | "group";
-  color: string;
-  chipColor: string;
-  eventColor: string;
-};
+export type CalendarActor = ActorRecord;
 
 export type CalendarEventTemplate = {
-  id: string;
-  ownerId: string;
+  id: EventId;
+  ownerId: ActorId;
   title: string;
   subtitle: string;
   date: string;

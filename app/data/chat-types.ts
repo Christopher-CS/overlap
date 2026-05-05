@@ -1,18 +1,22 @@
+import type { GroupId, MessageId, UserId } from "./ids";
+
 export type ChatMessage = {
-  id: string;
-  groupId: string;
-  senderId: string;
+  id: MessageId;
+  groupId: GroupId;
+  senderId: UserId;
   senderName: string;
   text: string;
   createdAt: string;
 };
 
 export type SendMessageInput = {
-  groupId: string;
+  groupId: GroupId;
   text: string;
+  senderId: UserId;
+  senderName: string;
 };
 
 export type ChatRepository = {
-  listMessages: (groupId: string) => Promise<ChatMessage[]>;
+  listMessages: (groupId: GroupId) => Promise<ChatMessage[]>;
   sendMessage: (input: SendMessageInput) => Promise<ChatMessage>;
 };

@@ -91,6 +91,7 @@ function RootTabs({ insets }: RootTabsProps) {
         <Tabs.Screen name="components/ScheduleCalendar" options={{ href: null }} />
         <Tabs.Screen name="components/scheduleCalendarStyles" options={{ href: null }} />
         <Tabs.Screen name="group-chat/[groupId]" options={{ href: null }} />
+        <Tabs.Screen name="login" options={{ href: null }} />
         <Tabs.Screen name="+not-found" options={{ href: null }} />
       </Tabs>
   );

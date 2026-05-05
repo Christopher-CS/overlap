@@ -1,5 +1,6 @@
 import mockCalendarDataJson from "./mock-calendar-events.json";
 import type { CreateGroupInput, GroupRecord, GroupsRepository } from "./groups-types";
+import { toGroupId, type GroupId } from "./ids";
 
 type MockActor = {
   id: string;
@@ -19,7 +20,7 @@ const mockCalendarData = mockCalendarDataJson as MockCalendarData;
 const seedGroups: GroupRecord[] = mockCalendarData.actors
   .filter((actor) => actor.entityType === "group")
   .map((actor) => ({
-    id: actor.id,
+    id: toGroupId(actor.id),
     name: actor.name,
     color: actor.color,
     chipColor: actor.chipColor,
@@ -27,7 +28,7 @@ const seedGroups: GroupRecord[] = mockCalendarData.actors
   }));
 
 const overlayGroups: GroupRecord[] = [];
-const removedGroupIds = new Set<string>();
+const removedGroupIds = new Set<GroupId>();
 
 const slugify = (value: string) =>
   value
@@ -37,9 +38,9 @@ const slugify = (value: string) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 24);
 
-const buildGroupId = (name: string) => {
+const buildGroupId = (name: string): GroupId => {
   const slug = slugify(name) || "group";
-  return `group-${slug}-${Date.now().toString(36)}`;
+  return toGroupId(`group-${slug}-${Date.now().toString(36)}`);
 };
 
 const createLocalGroupsRepository = (): GroupsRepository => ({
@@ -60,7 +61,7 @@ const createLocalGroupsRepository = (): GroupsRepository => ({
     removedGroupIds.delete(newGroup.id);
     return newGroup;
   },
-  async removeGroup(groupId: string) {
+  async removeGroup(groupId: GroupId) {
     removedGroupIds.add(groupId);
   },
 });

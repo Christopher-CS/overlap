@@ -15,14 +15,20 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { AppTopBar } from "./components/AppTopBar";
 import type { CalendarActor, CalendarEventTemplate } from "./components/ScheduleCalendar";
-import { getRepositories } from "../data/repository-provider";
 import type { GroupRecord } from "../data/groups-types";
+import type { GroupId } from "../data/ids";
+import { getRepositories } from "../data/repository-provider";
+import { showError } from "../data/toast";
 
-const { groups: groupsRepository } = getRepositories();
+const {
+  groups: groupsRepository,
+  actors: actorsRepository,
+  events: eventsRepository,
+} = getRepositories();
 
 type RecentActivityItem = {
   id: string;
-  groupId: string;
+  groupId: GroupId;
   title: string;
   groupName: string;
   statusLabel: string;
@@ -32,20 +38,13 @@ type RecentActivityItem = {
 };
 
 type GroupListItem = {
-  id: string;
+  id: GroupId;
   name: string;
   eventCount: number;
   icon: keyof typeof Ionicons.glyphMap;
   iconTone: string;
   iconBackground: string;
 };
-
-type MockCalendarData = {
-  actors: CalendarActor[];
-  eventTemplates: CalendarEventTemplate[];
-};
-
-const MOCK_CALENDAR = require("../data/mock-calendar-events.json") as MockCalendarData;
 
 const GROUP_ICON_TOKENS: Array<{
   icon: keyof typeof Ionicons.glyphMap;
@@ -113,6 +112,8 @@ export default function GroupsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [groups, setGroups] = useState<GroupRecord[]>([]);
+  const [actors, setActors] = useState<CalendarActor[]>([]);
+  const [events, setEvents] = useState<CalendarEventTemplate[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [isSavingGroup, setIsSavingGroup] = useState(false);
@@ -122,22 +123,39 @@ export default function GroupsScreen() {
     setGroups(loadedGroups);
   };
 
+  const loadActorsAndEvents = async () => {
+    const [loadedActors, loadedEvents] = await Promise.all([
+      actorsRepository.listActors(),
+      eventsRepository.listEvents(),
+    ]);
+    setActors(loadedActors);
+    setEvents(loadedEvents);
+  };
+
   useEffect(() => {
     void loadGroups();
+    void loadActorsAndEvents();
   }, []);
 
-  const groupActors = MOCK_CALENDAR.actors.filter((actor) => actor.entityType === "group");
-  const groupActorMap = Object.fromEntries(groupActors.map((actor) => [actor.id, actor])) as Record<
-    string,
-    CalendarActor
-  >;
-  const groupEvents = [...MOCK_CALENDAR.eventTemplates]
-    .filter((eventTemplate) => Boolean(groupActorMap[eventTemplate.ownerId]))
-    .sort((firstEvent, secondEvent) => {
-      const firstDate = parseEventDateTime(firstEvent.date, firstEvent.startTime);
-      const secondDate = parseEventDateTime(secondEvent.date, secondEvent.startTime);
-      return firstDate.getTime() - secondDate.getTime();
-    });
+  const groupActorMap = useMemo(
+    () =>
+      Object.fromEntries(
+        actors.filter((actor) => actor.entityType === "group").map((actor) => [actor.id, actor]),
+      ) as Record<string, CalendarActor>,
+    [actors],
+  );
+
+  const groupEvents = useMemo(
+    () =>
+      [...events]
+        .filter((eventTemplate) => Boolean(groupActorMap[eventTemplate.ownerId]))
+        .sort((firstEvent, secondEvent) => {
+          const firstDate = parseEventDateTime(firstEvent.date, firstEvent.startTime);
+          const secondDate = parseEventDateTime(secondEvent.date, secondEvent.startTime);
+          return firstDate.getTime() - secondDate.getTime();
+        }),
+    [events, groupActorMap],
+  );
 
   const recentActivityItems: RecentActivityItem[] = groupEvents.slice(0, 3).map((eventTemplate, index) => {
     const actor = groupActorMap[eventTemplate.ownerId];
@@ -146,7 +164,10 @@ export default function GroupsScreen() {
 
     return {
       id: `${eventTemplate.id}-${eventTemplate.date}`,
-      groupId: actor.id,
+      // We've already filtered to actors with entityType === "group",
+      // so the actor id at runtime is a group id even though it's
+      // typed as ActorId at the type level.
+      groupId: actor.id as unknown as GroupId,
       title: eventTemplate.title,
       groupName: actor.name,
       statusLabel: statusAndMeta.statusLabel,
@@ -160,7 +181,12 @@ export default function GroupsScreen() {
     () =>
       groups.map((group, index) => {
         const iconToken = GROUP_ICON_TOKENS[index % GROUP_ICON_TOKENS.length];
-        const eventCount = groupEvents.filter((eventTemplate) => eventTemplate.ownerId === group.id).length;
+        // ownerId on an event may reference either a user or a group;
+        // a string-level match against the GroupId tells us this group
+        // is the owner. The branded types don't overlap so we coerce.
+        const eventCount = groupEvents.filter(
+          (eventTemplate) => (eventTemplate.ownerId as string) === (group.id as string),
+        ).length;
 
         return {
           id: group.id,
@@ -187,12 +213,18 @@ export default function GroupsScreen() {
       await loadGroups();
       setNewGroupName("");
       setIsAddModalOpen(false);
+    } catch (error) {
+      showError(error, {
+        op: "groups.add",
+        title: "Could not create group",
+        context: { name: trimmedName },
+      });
     } finally {
       setIsSavingGroup(false);
     }
   };
 
-  const handleRemoveGroup = (groupId: string, groupName: string) => {
+  const handleRemoveGroup = (groupId: GroupId, groupName: string) => {
     Alert.alert(
       "Remove group?",
       `${groupName} will be hidden from this list for now.`,
@@ -202,8 +234,16 @@ export default function GroupsScreen() {
           text: "Remove",
           style: "destructive",
           onPress: async () => {
-            await groupsRepository.removeGroup(groupId);
-            await loadGroups();
+            try {
+              await groupsRepository.removeGroup(groupId);
+              await loadGroups();
+            } catch (error) {
+              showError(error, {
+                op: "groups.remove",
+                title: "Could not remove group",
+                context: { groupId },
+              });
+            }
           },
         },
       ],

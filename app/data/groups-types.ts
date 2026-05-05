@@ -1,5 +1,7 @@
+import type { GroupId } from "./ids";
+
 export type GroupRecord = {
-  id: string;
+  id: GroupId;
   name: string;
   color: string;
   chipColor: string;
@@ -13,5 +15,5 @@ export type CreateGroupInput = {
 export type GroupsRepository = {
   listGroups: () => Promise<GroupRecord[]>;
   addGroup: (input: CreateGroupInput) => Promise<GroupRecord>;
-  removeGroup: (groupId: string) => Promise<void>;
+  removeGroup: (groupId: GroupId) => Promise<void>;
 };

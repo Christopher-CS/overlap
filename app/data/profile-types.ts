@@ -1,3 +1,5 @@
+import type { UserId } from "./ids";
+
 /**
  * Profile record. Mirrors what we expect the `profiles` table in
  * Supabase to expose via RLS-restricted selects. IDs line up with
@@ -5,7 +7,7 @@
  * without extra lookups.
  */
 export type ProfileRecord = {
-  id: string;
+  id: UserId;
   displayName: string;
   avatarUrl: string | null;
   accentColor: string;
@@ -14,14 +16,14 @@ export type ProfileRecord = {
 };
 
 export type UpsertProfileInput = {
-  id: string;
+  id: UserId;
   displayName: string;
   avatarUrl?: string | null;
   accentColor?: string;
 };
 
 export type ProfileRepository = {
-  getProfile: (userId: string) => Promise<ProfileRecord | null>;
-  listProfiles: (userIds: string[]) => Promise<ProfileRecord[]>;
+  getProfile: (userId: UserId) => Promise<ProfileRecord | null>;
+  listProfiles: (userIds: UserId[]) => Promise<ProfileRecord[]>;
   upsertProfile: (input: UpsertProfileInput) => Promise<ProfileRecord>;
 };

@@ -1,13 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
-import { getRepositories } from "./repository-provider";
 import type {
   AuthSession,
   SessionUser,
   SignInWithEmailInput,
   SignUpWithEmailInput,
 } from "./auth-types";
+import type { UserId } from "./ids";
+import { getRepositories } from "./repository-provider";
 
 type AuthContextValue = {
   session: AuthSession;
@@ -86,7 +87,7 @@ export const useAuth = (): AuthContextValue => {
  * Convenience hook for reading only the current user id without
  * rerendering on every session field change.
  */
-export const useCurrentUserId = (): string | null => {
+export const useCurrentUserId = (): UserId | null => {
   const { user } = useAuth();
   return user?.id ?? null;
 };

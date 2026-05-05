@@ -71,6 +71,12 @@ const resolveAppEnv = (): AppEnv => {
   const flagUseLocal = asBoolean(readPublicVar("EXPO_PUBLIC_USE_LOCAL_REPOSITORIES"), true);
   const useLocalRepositories = flagUseLocal || !hasCredentials;
 
+  if (!flagUseLocal && !hasCredentials) {
+    console.warn(
+      "[Overlap] EXPO_PUBLIC_USE_LOCAL_REPOSITORIES=false but Supabase credentials are missing. Falling back to local mock repositories. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in app/.env to enable cloud mode.",
+    );
+  }
+
   return {
     environment,
     supabaseUrl,

@@ -1,17 +1,14 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppTopBar } from "./components/AppTopBar";
 import type { CalendarActor, CalendarEventTemplate } from "./components/ScheduleCalendar";
 import { detectConflicts } from "../data/conflict-utils";
+import { getRepositories } from "../data/repository-provider";
 
-type MockCalendarData = {
-  actors: CalendarActor[];
-  eventTemplates: CalendarEventTemplate[];
-};
-
-const MOCK_CALENDAR = require("../data/mock-calendar-events.json") as MockCalendarData;
+const { actors: actorsRepository, events: eventsRepository } = getRepositories();
 
 const formatDisplayTime = (time: string) => {
   const [hoursText, minutesText] = time.split(":");
@@ -28,14 +25,35 @@ const formatDateLabel = (dateValue: string) =>
   }).format(new Date(`${dateValue}T00:00:00`));
 
 export default function ConflictsScreen() {
-  const actorMap = Object.fromEntries(MOCK_CALENDAR.actors.map((actor) => [actor.id, actor])) as Record<
-    string,
-    CalendarActor
-  >;
-  const eventMap = Object.fromEntries(
-    MOCK_CALENDAR.eventTemplates.map((eventTemplate) => [`${eventTemplate.id}-${eventTemplate.date}`, eventTemplate]),
-  ) as Record<string, CalendarEventTemplate>;
-  const { conflictGroupsByDate } = detectConflicts(MOCK_CALENDAR.eventTemplates);
+  const [actors, setActors] = useState<CalendarActor[]>([]);
+  const [events, setEvents] = useState<CalendarEventTemplate[]>([]);
+
+  useEffect(() => {
+    const loadConflictData = async () => {
+      const [loadedActors, loadedEvents] = await Promise.all([
+        actorsRepository.listActors(),
+        eventsRepository.listEvents(),
+      ]);
+      setActors(loadedActors);
+      setEvents(loadedEvents);
+    };
+    void loadConflictData();
+  }, []);
+
+  const actorMap = useMemo(
+    () => Object.fromEntries(actors.map((actor) => [actor.id, actor])) as Record<string, CalendarActor>,
+    [actors],
+  );
+
+  const eventMap = useMemo(
+    () =>
+      Object.fromEntries(
+        events.map((eventTemplate) => [`${eventTemplate.id}-${eventTemplate.date}`, eventTemplate]),
+      ) as Record<string, CalendarEventTemplate>,
+    [events],
+  );
+
+  const { conflictGroupsByDate } = useMemo(() => detectConflicts(events), [events]);
   const datesWithConflicts = Object.keys(conflictGroupsByDate).sort();
 
   return (

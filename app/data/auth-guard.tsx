@@ -1,5 +1,7 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useRouter, useSegments } from "expo-router";
+import { useEffect } from "react";
 import type { ReactNode } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { useAuth } from "./auth-context";
 
@@ -9,29 +11,39 @@ export type AuthGuardProps = {
    * centered spinner.
    */
   loadingFallback?: ReactNode;
-  /**
-   * Optional fallback shown when the user is signed out. Defaults to a
-   * simple "Signed out" placeholder so this component can be dropped in
-   * before the login screen is implemented.
-   */
-  unauthenticatedFallback?: ReactNode;
   children: ReactNode;
 };
 
+const LOGIN_SEGMENT = "login";
+
 /**
- * Wraps protected screens. While the cloud auth implementation is
- * pending, this renders its children whenever the local mock session
- * is authenticated (which is the default in development).
+ * Wraps protected screens. Behavior:
  *
- * Once a real sign-in flow exists, replace `unauthenticatedFallback`
- * with a redirect to the login route (e.g. `router.replace('/login')`).
+ * - While the session is loading, renders {@link loadingFallback}.
+ * - Children inside the `/login` route always render, regardless of
+ *   authentication state, so unauthenticated users can sign in.
+ * - For any other route: if the user is not authenticated, the guard
+ *   navigates to `/login`. If the user is authenticated and currently
+ *   sitting on `/login`, the guard navigates back to the root tabs.
  */
-export function AuthGuard({
-  children,
-  loadingFallback,
-  unauthenticatedFallback,
-}: AuthGuardProps) {
+export function AuthGuard({ children, loadingFallback }: AuthGuardProps) {
+  const router = useRouter();
+  const segments = useSegments();
   const { isAuthenticated, isLoading } = useAuth();
+  const isOnLoginRoute = segments[0] === LOGIN_SEGMENT;
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+    if (!isAuthenticated && !isOnLoginRoute) {
+      router.replace("/login");
+      return;
+    }
+    if (isAuthenticated && isOnLoginRoute) {
+      router.replace("/");
+    }
+  }, [isAuthenticated, isLoading, isOnLoginRoute, router]);
 
   if (isLoading) {
     return (
@@ -41,14 +53,16 @@ export function AuthGuard({
     );
   }
 
+  // Always render the login screen itself, even if the auth context is
+  // not yet authenticated.
+  if (isOnLoginRoute) {
+    return <>{children}</>;
+  }
+
   if (!isAuthenticated) {
-    return (
-      <View style={styles.center}>
-        {unauthenticatedFallback ?? (
-          <Text style={styles.placeholder}>Please sign in to continue.</Text>
-        )}
-      </View>
-    );
+    // The effect above will redirect; render nothing in the meantime to
+    // avoid flashing protected UI.
+    return <View style={styles.center} />;
   }
 
   return <>{children}</>;
@@ -61,11 +75,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 24,
-  },
-  placeholder: {
-    color: "#50607B",
-    fontSize: 15,
-    fontWeight: "600",
-    textAlign: "center",
   },
 });

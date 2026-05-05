@@ -1,5 +1,7 @@
 import { appEnv } from "../config/env";
 
+import { localActorsRepository } from "./actors-repository";
+import type { ActorsRepository } from "./actors-types";
 import { localAuthRepository } from "./auth-repository";
 import type { AuthRepository } from "./auth-types";
 import { chatRepository as localChatRepository } from "./chat-repository";
@@ -18,6 +20,7 @@ import type { ProfileRepository } from "./profile-types";
 export type RepositoryBundle = {
   auth: AuthRepository;
   profiles: ProfileRepository;
+  actors: ActorsRepository;
   groups: GroupsRepository;
   events: EventsRepository;
   chat: ChatRepository;
@@ -26,6 +29,7 @@ export type RepositoryBundle = {
 const buildLocalRepositories = (): RepositoryBundle => ({
   auth: localAuthRepository,
   profiles: localProfileRepository,
+  actors: localActorsRepository,
   groups: localGroupsRepository,
   events: localEventsRepository,
   chat: localChatRepository,

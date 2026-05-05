@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -16,35 +16,38 @@ import ScheduleCalendar, {
   type CalendarActor,
   type CalendarEventTemplate,
 } from "./components/ScheduleCalendar";
+import type { ActorId } from "../data/ids";
 import { getRepositories } from "../data/repository-provider";
+import { showError } from "../data/toast";
 
-const { events: eventsRepository } = getRepositories();
-
-type MockCalendarData = {
-  actors: CalendarActor[];
-  eventTemplates: CalendarEventTemplate[];
-};
-
-const MOCK_CALENDAR = require("../data/mock-calendar-events.json") as MockCalendarData;
+const { events: eventsRepository, actors: actorsRepository } = getRepositories();
 
 export default function Index() {
   const insets = useSafeAreaInsets();
+  const [actors, setActors] = useState<CalendarActor[]>([]);
   const [events, setEvents] = useState<CalendarEventTemplate[]>([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [title, setTitle] = useState("");
-  const [ownerId, setOwnerId] = useState<string>("");
+  const [ownerId, setOwnerId] = useState<ActorId | "">("");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const actorOptions = useMemo(() => MOCK_CALENDAR.actors, []);
+
+  const actorOptions = actors;
 
   const loadEvents = async () => {
     const loadedEvents = await eventsRepository.listEvents();
     setEvents(loadedEvents);
   };
 
+  const loadActors = async () => {
+    const loadedActors = await actorsRepository.listActors();
+    setActors(loadedActors);
+  };
+
   useEffect(() => {
+    void loadActors();
     void loadEvents();
   }, []);
 
@@ -101,6 +104,12 @@ export default function Index() {
       await loadEvents();
       setIsCreateModalVisible(false);
       resetForm();
+    } catch (error) {
+      showError(error, {
+        op: "events.create",
+        title: "Could not create event",
+        context: { ownerId, date },
+      });
     } finally {
       setIsSaving(false);
     }
@@ -112,7 +121,7 @@ export default function Index() {
         <AppTopBar />
 
         <ScheduleCalendar
-          actors={MOCK_CALENDAR.actors}
+          actors={actors}
           eventTemplates={events}
         />
 

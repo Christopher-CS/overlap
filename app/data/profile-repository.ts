@@ -1,15 +1,23 @@
+import { toUserId, type UserId } from "./ids";
 import mockProfilesJson from "./mock-profiles.json";
 import type { ProfileRecord, ProfileRepository, UpsertProfileInput } from "./profile-types";
 
+type RawMockProfile = Omit<ProfileRecord, "id"> & { id: string };
+
 type MockProfilesData = {
-  profiles: ProfileRecord[];
+  profiles: RawMockProfile[];
 };
 
-const seedProfiles = (mockProfilesJson as MockProfilesData).profiles;
+const seedProfiles: ProfileRecord[] = (mockProfilesJson as MockProfilesData).profiles.map(
+  (profile) => ({
+    ...profile,
+    id: toUserId(profile.id),
+  }),
+);
 
-const overlayProfiles = new Map<string, ProfileRecord>();
+const overlayProfiles = new Map<UserId, ProfileRecord>();
 
-const readProfile = (userId: string): ProfileRecord | null => {
+const readProfile = (userId: UserId): ProfileRecord | null => {
   const overlay = overlayProfiles.get(userId);
   if (overlay) {
     return overlay;
@@ -18,10 +26,10 @@ const readProfile = (userId: string): ProfileRecord | null => {
 };
 
 const createLocalProfileRepository = (): ProfileRepository => ({
-  async getProfile(userId: string) {
+  async getProfile(userId: UserId) {
     return readProfile(userId);
   },
-  async listProfiles(userIds: string[]) {
+  async listProfiles(userIds: UserId[]) {
     const uniqueIds = Array.from(new Set(userIds));
     return uniqueIds
       .map((userId) => readProfile(userId))

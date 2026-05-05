@@ -6,6 +6,7 @@ import type {
   SignInWithEmailInput,
   SignUpWithEmailInput,
 } from "./auth-types";
+import { toUserId, type UserId } from "./ids";
 
 /**
  * A single "me" user the mock repositories already assume.
@@ -14,7 +15,7 @@ import type {
  * and the actor id `"me"` that shows up in the calendar, so that once
  * we swap to real auth we can migrate ownership in one place.
  */
-export const LOCAL_ME_USER_ID = "me";
+export const LOCAL_ME_USER_ID: UserId = toUserId("me");
 
 const buildInitialSession = (): AuthSession => ({
   status: "authenticated",

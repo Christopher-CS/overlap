@@ -1,23 +1,33 @@
 import mockGroupChatDataJson from "./mock-group-chat.json";
 import type { ChatMessage, ChatRepository, SendMessageInput } from "./chat-types";
+import { toGroupId, toMessageId, toUserId, type GroupId, type MessageId } from "./ids";
+
+type RawMockMessage = Omit<ChatMessage, "id" | "groupId" | "senderId"> & {
+  id: string;
+  groupId: string;
+  senderId: string;
+};
 
 type MockChatData = {
-  messages: ChatMessage[];
+  messages: RawMockMessage[];
 };
 
 const mockChatData = mockGroupChatDataJson as MockChatData;
-const seedMessages = mockChatData.messages;
+const seedMessages: ChatMessage[] = mockChatData.messages.map((message) => ({
+  ...message,
+  id: toMessageId(message.id),
+  groupId: toGroupId(message.groupId),
+  senderId: toUserId(message.senderId),
+}));
 const overlayMessages: ChatMessage[] = [];
-const localSender = {
-  id: "me",
-  name: "You",
-};
 
-const createMessageId = (groupId: string) =>
-  `local-${groupId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const createMessageId = (groupId: GroupId): MessageId =>
+  toMessageId(
+    `local-${groupId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+  );
 
 const createLocalChatRepository = (): ChatRepository => ({
-  async listMessages(groupId: string) {
+  async listMessages(groupId: GroupId) {
     return [...seedMessages, ...overlayMessages]
       .filter((message) => message.groupId === groupId)
       .sort((firstMessage, secondMessage) =>
@@ -28,8 +38,8 @@ const createLocalChatRepository = (): ChatRepository => ({
     const newMessage: ChatMessage = {
       id: createMessageId(input.groupId),
       groupId: input.groupId,
-      senderId: localSender.id,
-      senderName: localSender.name,
+      senderId: input.senderId,
+      senderName: input.senderName,
       text: input.text.trim(),
       createdAt: new Date().toISOString(),
     };

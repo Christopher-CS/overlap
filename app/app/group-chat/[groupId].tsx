@@ -13,9 +13,13 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useCurrentUserId } from "../../data/auth-context";
 import type { ChatMessage } from "../../data/chat-types";
 import type { GroupRecord } from "../../data/groups-types";
+import { toGroupId, type GroupId } from "../../data/ids";
+import { useCurrentProfile } from "../../data/profile-context";
 import { getRepositories } from "../../data/repository-provider";
+import { showError } from "../../data/toast";
 
 const { chat: chatRepository, groups: groupsRepository } = getRepositories();
 
@@ -29,7 +33,10 @@ export default function GroupChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { groupId } = useLocalSearchParams<{ groupId?: string | string[] }>();
-  const resolvedGroupId = Array.isArray(groupId) ? groupId[0] : groupId ?? "";
+  const rawGroupId = Array.isArray(groupId) ? groupId[0] : groupId ?? "";
+  const resolvedGroupId: GroupId | null = rawGroupId ? toGroupId(rawGroupId) : null;
+  const currentUserId = useCurrentUserId();
+  const { profile: currentProfile } = useCurrentProfile();
   const [groups, setGroups] = useState<GroupRecord[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draftMessage, setDraftMessage] = useState("");
@@ -58,7 +65,7 @@ export default function GroupChatScreen() {
 
   const handleSendMessage = async () => {
     const trimmedMessage = draftMessage.trim();
-    if (!trimmedMessage || !resolvedGroupId) {
+    if (!trimmedMessage || !resolvedGroupId || !currentUserId) {
       return;
     }
     try {
@@ -66,10 +73,18 @@ export default function GroupChatScreen() {
       await chatRepository.sendMessage({
         groupId: resolvedGroupId,
         text: trimmedMessage,
+        senderId: currentUserId,
+        senderName: currentProfile?.displayName ?? "You",
       });
       setDraftMessage("");
       const updatedMessages = await chatRepository.listMessages(resolvedGroupId);
       setMessages(updatedMessages);
+    } catch (error) {
+      showError(error, {
+        op: "chat.send",
+        title: "Message failed",
+        context: { groupId: resolvedGroupId },
+      });
     } finally {
       setIsSending(false);
     }
@@ -107,7 +122,7 @@ export default function GroupChatScreen() {
             </View>
           ) : (
             messages.map((message) => {
-              const isCurrentUser = message.senderId === "me";
+              const isCurrentUser = currentUserId !== null && message.senderId === currentUserId;
               return (
                 <View
                   key={message.id}
